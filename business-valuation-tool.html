@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Valuation Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #6b1a2a;
+    --navy-mid: #7d2035;
+    --navy-light: #922540;
+    --gold: #c8a951;
+    --gold-light: #dfc070;
+    --gold-pale: #f5ecd1;
+    --cream: #f7f5f5;
+    --text: #2a0a10;
+    --muted: #7a5a60;
+    --white: #ffffff;
+    --border: rgba(200,169,81,0.28);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header {
+    background: var(--navy);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -80px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 10%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .header-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 52px 32px 48px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.35);
+    color: var(--gold-light);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: -0.01em;
+  }
+
+  h1 em {
+    color: var(--gold-light);
+    font-style: italic;
+  }
+
+  .header-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 480px;
+  }
+
+  /* Divider line */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold) 0%, rgba(201,168,76,0.1) 100%);
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* Main */
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--white);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 4px;
+    padding: 40px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.06);
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .step-num {
+    width: 26px; height: 26px;
+    background: var(--navy);
+    color: var(--gold-light);
+    border-radius: 50%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-desc {
+    color: var(--muted);
+    font-size: 13.5px;
+    margin-bottom: 28px;
+    line-height: 1.5;
+    padding-left: 36px;
+  }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 22px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--navy);
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  .label-hint {
+    font-weight: 300;
+    color: var(--muted);
+    font-size: 12px;
+    margin-left: 6px;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-prefix {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    padding: 12px 14px 12px 30px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: #fafafa;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+
+  select {
+    padding-left: 14px;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+    background: #fff;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 520px) {
+    .field-row { grid-template-columns: 1fr; }
+    .card { padding: 28px 20px; }
+    .main { padding: 28px 16px 60px; }
+    .header-inner { padding: 40px 20px 36px; }
+  }
+
+  /* Tooltip */
+  .tooltip-wrap {
+    display: inline-block;
+    position: relative;
+    margin-left: 6px;
+    cursor: help;
+  }
+
+  .tooltip-icon {
+    width: 16px; height: 16px;
+    background: #e5e7eb;
+    color: var(--muted);
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center;
+    vertical-align: middle;
+  }
+
+  .tooltip-box {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--navy);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 300;
+    line-height: 1.5;
+    padding: 10px 14px;
+    border-radius: 4px;
+    width: 240px;
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  .tooltip-box::after {
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--navy);
+  }
+
+  .tooltip-wrap:hover .tooltip-box { display: block; }
+
+  /* SDE adder */
+  .sde-items {
+    background: #f8f9fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 3px;
+    padding: 16px;
+    margin-top: -8px;
+  }
+
+  .sde-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .sde-item:last-child { margin-bottom: 0; }
+
+  .sde-item label {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 400;
+    flex: 1;
+    white-space: nowrap;
+  }
+
+  .sde-item .input-wrap {
+    width: 160px;
+    flex-shrink: 0;
+  }
+
+  .sde-item input {
+    padding: 8px 8px 8px 26px;
+    font-size: 13px;
+  }
+
+  /* Calculate button */
+  .btn-calculate {
+    width: 100%;
+    padding: 16px;
+    background: var(--navy);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 3px;
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn-calculate:hover { background: var(--navy-light); transform: translateY(-1px); }
+  .btn-calculate:active { transform: translateY(0); }
+
+  /* Results */
+  #results {
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-hero {
+    background: var(--navy);
+    border-radius: 4px;
+    padding: 40px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .result-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 65%);
+    border-radius: 50%;
+  }
+
+  .result-label {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .result-range {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1.1;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .result-midpoint {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+  }
+
+  .result-midpoint strong {
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  /* breakdown grid */
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 520px) {
+    .breakdown-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .breakdown-item {
+    background: var(--white);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 4px;
+    padding: 20px 18px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  }
+
+  .breakdown-item-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  .breakdown-item-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  .breakdown-item-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  /* Factors */
+  .factors-card {
+    background: var(--white);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 4px;
+    padding: 32px 40px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  }
+
+  .factors-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 20px;
+  }
+
+  .factor-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .factor-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .factor-dot.green  { background: #22c55e; }
+  .factor-dot.yellow { background: #f59e0b; }
+  .factor-dot.red    { background: #ef4444; }
+
+  .factor-text {
+    font-size: 14px;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .factor-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .factor-badge.pos { background: #dcfce7; color: #166534; }
+  .factor-badge.neu { background: #fef9c3; color: #854d0e; }
+  .factor-badge.neg { background: #fee2e2; color: #991b1b; }
+
+  /* CTA card */
+  .cta-card {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    border-radius: 4px;
+    padding: 36px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .cta-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--white);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .cta-text p {
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+    font-weight: 300;
+    max-width: 320px;
+  }
+
+  .btn-cta {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 14px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  /* Note */
+  .disclaimer {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 300;
+    margin-top: 28px;
+    line-height: 1.6;
+  }
+
+  /* Year blocks */
+  .year-block {
+    border: 1px solid #e8e0e0;
+    border-radius: 4px;
+    padding: 22px 22px 18px;
+    margin-bottom: 18px;
+    background: #fdfcfc;
+  }
+
+  .year-header { margin-bottom: 16px; }
+
+  .year-tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 2px;
+  }
+
+  .year-tag.y1 { background: rgba(107,26,42,0.1); color: var(--navy); border-left: 3px solid var(--navy); }
+  .year-tag.y2 { background: rgba(107,26,42,0.06); color: var(--navy-mid); border-left: 3px solid var(--navy-mid); }
+  .year-tag.y3 { background: rgba(107,26,42,0.04); color: var(--muted); border-left: 3px solid #ccc; }
+
+  .year-weight {
+    font-weight: 400;
+    opacity: 0.75;
+    margin-left: 4px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Modal overlay */
+  #modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 20, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  #modal {
+    background: var(--white);
+    border-radius: 6px;
+    padding: 44px 40px 36px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    animation: slideUp 0.3s ease;
+    text-align: center;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-icon {
+    width: 56px; height: 56px;
+    background: rgba(107,26,42,0.08);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    color: var(--navy);
+  }
+
+  #modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+
+  #modal > p {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .modal-field {
+    text-align: left;
+    margin-bottom: 14px;
+  }
+
+  .modal-field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--navy);
+    margin-bottom: 6px;
+    display: block;
+    letter-spacing: 0.03em;
+  }
+
+  .modal-field input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: #fafafa;
+    transition: border-color 0.2s;
+  }
+
+  .modal-field input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(200,169,81,0.12);
+    background: #fff;
+  }
+
+  .modal-error {
+    display: none;
+    color: #dc2626;
+    font-size: 12px;
+    margin: -6px 0 12px;
+    text-align: left;
+  }
+
+  .btn-modal-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--navy);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 3px;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .btn-modal-submit:hover { background: var(--navy-light); transform: translateY(-1px); }
+
+  .modal-privacy {
+    font-size: 11.5px;
+    color: #9ca3af;
+    margin-top: 14px;
+    font-weight: 300;
+  }
+
+  /* Error */
+  .error-msg {
+    display: none;
+    color: #dc2626;
+    font-size: 13px;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: #fef2f2;
+    border-radius: 3px;
+    border: 1px solid #fecaca;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge">Free Tool · Business Brokers</div>
+    <h1>What Is Your Business<br><em>Actually Worth?</em></h1>
+    <p class="header-sub">Get an instant ballpark valuation in under 2 minutes. No signup required — just the numbers that matter.</p>
+  </div>
+</div>
+<div class="divider"></div>
+
+<div class="main">
+
+  <!-- Step 1 -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">1</div>
+      Business Financials — 3-Year History
+    </div>
+    <p class="card-desc">Grab your last 3 years of <strong>tax returns</strong> and enter the net profit and add-backs for each year. FCBB weights these as: <strong>50% most recent · 30% two years ago · 20% three years ago</strong> to arrive at a normalized SDE.</p>
+
+    <!-- Year 1 (most recent) -->
+    <div class="year-block">
+      <div class="year-header">
+        <div class="year-tag y1">Year 1 — Most Recent &nbsp;<span class="year-weight">50% weight</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Annual Revenue</label>
+          <div class="input-wrap"><span class="input-prefix">$</span>
+            <input type="number" id="rev1" placeholder="e.g. 1,200,000" min="0"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Net Profit <span class="label-hint">(pre-addbacks)</span></label>
+          <div class="input-wrap"><span class="input-prefix">$</span>
+            <input type="number" id="profit1" placeholder="e.g. 280,000" min="0"/>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Add-Backs
+          <span class="tooltip-wrap">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-box">SDE adds back non-essential expenses a buyer wouldn't incur — owner's salary, personal vehicle, one-time costs, depreciation. This reveals the true earning power of the business.</span>
+          </span>
+        </label>
+        <div class="sde-items">
+          <div class="sde-item"><label>Owner's salary / compensation</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="sal1" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Personal vehicle / travel</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="veh1" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>One-time / non-recurring costs</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="ot1" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Interest on loans / financing</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="int1" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Depreciation</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="dep1" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Amortization</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="amort1" placeholder="0" min="0"/></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Year 2 -->
+    <div class="year-block">
+      <div class="year-header">
+        <div class="year-tag y2">Year 2 — Two Years Ago &nbsp;<span class="year-weight">30% weight</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Annual Revenue</label>
+          <div class="input-wrap"><span class="input-prefix">$</span>
+            <input type="number" id="rev2" placeholder="e.g. 1,050,000" min="0"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Net Profit <span class="label-hint">(pre-addbacks)</span></label>
+          <div class="input-wrap"><span class="input-prefix">$</span>
+            <input type="number" id="profit2" placeholder="e.g. 240,000" min="0"/>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Add-Backs</label>
+        <div class="sde-items">
+          <div class="sde-item"><label>Owner's salary / compensation</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="sal2" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Personal vehicle / travel</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="veh2" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>One-time / non-recurring costs</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="ot2" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Interest on loans / financing</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="int2" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Depreciation</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="dep2" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Amortization</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="amort2" placeholder="0" min="0"/></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Year 3 -->
+    <div class="year-block" style="margin-bottom:0">
+      <div class="year-header">
+        <div class="year-tag y3">Year 3 — Three Years Ago &nbsp;<span class="year-weight">20% weight</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Annual Revenue</label>
+          <div class="input-wrap"><span class="input-prefix">$</span>
+            <input type="number" id="rev3" placeholder="e.g. 900,000" min="0"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Net Profit <span class="label-hint">(pre-addbacks)</span></label>
+          <div class="input-wrap"><span class="input-prefix">$</span>
+            <input type="number" id="profit3" placeholder="e.g. 200,000" min="0"/>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Add-Backs</label>
+        <div class="sde-items">
+          <div class="sde-item"><label>Owner's salary / compensation</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="sal3" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Personal vehicle / travel</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="veh3" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>One-time / non-recurring costs</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="ot3" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Interest on loans / financing</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="int3" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Depreciation</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="dep3" placeholder="0" min="0"/></div></div>
+          <div class="sde-item"><label>Amortization</label>
+            <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="amort3" placeholder="0" min="0"/></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">2</div>
+      Business Profile
+    </div>
+    <p class="card-desc">These factors directly influence the valuation multiple a buyer will apply.</p>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Industry</label>
+        <select id="industry">
+          <option value="">Select your industry…</option>
+          <option value="3.5">Technology / SaaS</option>
+          <option value="3.2">Professional Services</option>
+          <option value="3.0">Healthcare / Medical</option>
+          <option value="2.8">Financial Services</option>
+          <option value="2.8">Construction / Trades</option>
+          <option value="2.5">Manufacturing</option>
+          <option value="2.5">Distribution / Wholesale</option>
+          <option value="2.2">Food & Beverage</option>
+          <option value="2.0">Retail</option>
+          <option value="2.3">E-Commerce</option>
+          <option value="2.5">Other / General Business</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Years in Business</label>
+        <select id="years">
+          <option value="">Select…</option>
+          <option value="-0.3">Under 2 years</option>
+          <option value="0">2–4 years</option>
+          <option value="0.2">5–9 years</option>
+          <option value="0.4">10–19 years</option>
+          <option value="0.5">20+ years</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Owner Dependence
+          <span class="tooltip-wrap">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-box">How reliant is the business on you personally? A business that runs without you is worth significantly more to a buyer.</span>
+          </span>
+        </label>
+        <select id="ownerDep">
+          <option value="">Select…</option>
+          <option value="0.5">Runs without me (strong team)</option>
+          <option value="0.2">I manage, team handles ops</option>
+          <option value="0">I'm involved daily but replaceable</option>
+          <option value="-0.4">Very dependent on me personally</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Customer Concentration
+          <span class="tooltip-wrap">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-box">If your top customer represents more than 20% of revenue, buyers will discount the valuation due to risk.</span>
+          </span>
+        </label>
+        <select id="custConc">
+          <option value="">Select…</option>
+          <option value="0.3">Diversified (no client > 10%)</option>
+          <option value="0.1">Moderate (top client 10–20%)</option>
+          <option value="-0.2">Concentrated (top client 20–40%)</option>
+          <option value="-0.5">High risk (1–2 clients = majority)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Recurring Revenue</label>
+        <select id="recurring">
+          <option value="">Select…</option>
+          <option value="0.5">High (subscriptions/contracts)</option>
+          <option value="0.2">Moderate (repeat customers)</option>
+          <option value="0">Low (project/transactional)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+  <!-- Step 3 -->
+  <div class="card">
+    <div class="card-title">
+      <div class="step-num">3</div>
+      Valuation Multiple
+    </div>
+    <p class="card-desc">The multiple is applied directly to your weighted SDE to arrive at your business value. For most small businesses this ranges from <strong>1x to 3x</strong>. If you're unsure, a broker can help determine the right multiple for your industry and market conditions.</p>
+
+    <div class="field-row">
+      <div class="field" style="max-width: 140px;">
+        <label>
+          Your Multiple
+          <span class="tooltip-wrap">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-box">A multiple of 2x means a buyer would pay 2 times your annual SDE. Higher multiples reflect stronger businesses — consistent growth, low owner dependence, recurring revenue, and strong market position.</span>
+          </span>
+        </label>
+        <div class="input-wrap">
+          <input type="number" id="manualMultiple" placeholder="e.g. 2.5" min="1" max="3" step="0.1" style="padding-left: 14px;" oninput="document.getElementById('multipleSlider').value = this.value"/>
+        </div>
+      </div>
+      <div class="field" style="flex:1;">
+        <label>&nbsp;</label>
+        <input type="range" id="multipleSlider" min="1" max="3" step="0.1" value="2" oninput="syncSlider(this.value)" style="width:100%; accent-color: var(--navy); cursor: pointer; margin-top: 6px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:6px;">
+          <span>1x — High risk</span>
+          <span>2x — Average</span>
+          <span>3x — Strong</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-msg" id="errorMsg">Please fill in all required fields (Steps 1–3) before calculating your valuation.</div></div>
+
+  <button class="btn-calculate" onclick="tryCalculate()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M8 6h8M8 12h4M8 18h6"/></svg>
+    Calculate My Business Valuation
+  </button>
+
+  <!-- LEAD CAPTURE MODAL -->
+  <div id="modalOverlay" style="display:none">
+    <div id="modal">
+      <div class="modal-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg>
+      </div>
+      <h2>Your valuation is ready.</h2>
+      <p>Enter your contact info below and we'll reveal your estimate instantly — no waiting, no sales pressure.</p>
+      <div class="modal-field">
+        <label>Full Name</label>
+        <input type="text" id="leadName" placeholder="Jane Smith" />
+      </div>
+      <div class="modal-field">
+        <label>Email Address</label>
+        <input type="text" id="leadEmail" placeholder="jane@yourbusiness.com" />
+      </div>
+      <div class="modal-field">
+        <label>Phone Number</label>
+        <input type="text" id="leadPhone" placeholder="(555) 000-0000" />
+      </div>
+      <div class="modal-error" id="modalError">Please fill in all fields above.</div>
+      <button class="btn-modal-submit" onclick="submitLead()">
+        Reveal My Valuation →
+      </button>
+      <p class="modal-privacy">🔒 Your information is kept confidential and will never be shared.</p>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+
+    <div style="height:32px"></div>
+
+    <div class="result-hero">
+      <div class="result-label">Estimated Business Value</div>
+      <div class="result-range" id="valRange">—</div>
+      <div class="result-midpoint">Midpoint estimate: <strong id="valMid">—</strong></div>
+    </div>
+
+    <div class="breakdown-grid">
+      <div class="breakdown-item">
+        <div class="breakdown-item-label">Weighted SDE</div>
+        <div class="breakdown-item-value" id="resSDE">—</div>
+        <div class="breakdown-item-sub">50/30/20 weighted avg</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-item-label">Valuation Multiple</div>
+        <div class="breakdown-item-value" id="resMult">—</div>
+        <div class="breakdown-item-sub">Applied to weighted SDE</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-item-label">Yr 1 SDE</div>
+        <div class="breakdown-item-value" id="resSDE1">—</div>
+        <div class="breakdown-item-sub">Most recent (50%)</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-item-label">Yr 2 SDE</div>
+        <div class="breakdown-item-value" id="resSDE2">—</div>
+        <div class="breakdown-item-sub">Two years ago (30%)</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-item-label">Yr 3 SDE</div>
+        <div class="breakdown-item-value" id="resSDE3">—</div>
+        <div class="breakdown-item-sub">Three years ago (20%)</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-item-label">Revenue Trend</div>
+        <div class="breakdown-item-value" id="resTrend">—</div>
+        <div class="breakdown-item-sub">Yr 3 → Yr 1 change</div>
+      </div>
+    </div>
+
+    <div class="factors-card">
+      <div class="factors-title">What's Driving Your Valuation</div>
+      <div id="factorsList"></div>
+    </div>
+
+    <div class="cta-card">
+      <div class="cta-text">
+        <h3>Ready for a Professional Valuation?</h3>
+        <p>This estimate is a starting point. A certified broker can uncover the full picture — and often finds value owners miss.</p>
+      </div>
+      <button class="btn-cta" onclick="alert('Connect this to your booking calendar or contact form!')">Book a Free Consultation →</button>
+    </div>
+
+    <p class="disclaimer">This tool provides an educational estimate based on SDE multiples used in small business transactions. It is not a formal business appraisal. Actual value may vary based on assets, liabilities, market conditions, and buyer demand. Consult a licensed business broker for a professional valuation.</p>
+
+  </div>
+
+</div>
+
+<script>
+function fmt(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(2) + 'M';
+  if (n >= 1000) return '$' + Math.round(n/1000) + 'K';
+  return '$' + Math.round(n).toLocaleString();
+}
+
+function getSDE(profitId, salId, vehId, otId, intId, depId, amortId) {
+  const p     = parseFloat(document.getElementById(profitId).value) || 0;
+  const sal   = parseFloat(document.getElementById(salId).value)    || 0;
+  const veh   = parseFloat(document.getElementById(vehId).value)    || 0;
+  const ot    = parseFloat(document.getElementById(otId).value)     || 0;
+  const int_  = parseFloat(document.getElementById(intId).value)    || 0;
+  const dep   = parseFloat(document.getElementById(depId).value)    || 0;
+  const amort = parseFloat(document.getElementById(amortId).value)  || 0;
+  return p + sal + veh + ot + int_ + dep + amort;
+}
+
+function syncSlider(val) {
+  document.getElementById('manualMultiple').value = parseFloat(val).toFixed(1);
+}
+
+function validateForm() {
+  const rev1     = parseFloat(document.getElementById('rev1').value) || 0;
+  const industry = document.getElementById('industry').value;
+  const years    = document.getElementById('years').value;
+  const ownerDep = document.getElementById('ownerDep').value;
+  const custConc = document.getElementById('custConc').value;
+  const recurring= document.getElementById('recurring').value;
+  const multiple = parseFloat(document.getElementById('manualMultiple').value);
+  return rev1 && document.getElementById('profit1').value && industry && years !== '' && ownerDep !== '' && custConc !== '' && recurring !== '' && multiple >= 1 && multiple <= 3;
+}
+
+// Step 1: validate form, then show lead gate
+function tryCalculate() {
+  const err = document.getElementById('errorMsg');
+  if (!validateForm()) {
+    err.style.display = 'block';
+    err.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  err.style.display = 'none';
+  document.getElementById('modalOverlay').style.display = 'flex';
+}
+
+// Step 2: validate lead info, then run calculation and reveal results
+function submitLead() {
+  const name  = document.getElementById('leadName').value.trim();
+  const email = document.getElementById('leadEmail').value.trim();
+  const phone = document.getElementById('leadPhone').value.trim();
+  const modalErr = document.getElementById('modalError');
+
+  if (!name || !email || !phone) {
+    modalErr.style.display = 'block';
+    return;
+  }
+  modalErr.style.display = 'none';
+
+  // Close modal
+  document.getElementById('modalOverlay').style.display = 'none';
+
+  // Here you would normally POST the lead data to your CRM or email
+  // e.g. fetch('/api/leads', { method:'POST', body: JSON.stringify({name, email, phone}) })
+  console.log('New lead:', { name, email, phone });
+
+  calculate();
+}
+
+// Close modal if clicking outside
+document.addEventListener('click', function(e) {
+  const overlay = document.getElementById('modalOverlay');
+  if (e.target === overlay) overlay.style.display = 'none';
+});
+
+function calculate() {
+  const rev1 = parseFloat(document.getElementById('rev1').value) || 0;
+  const rev2 = parseFloat(document.getElementById('rev2').value) || 0;
+  const rev3 = parseFloat(document.getElementById('rev3').value) || 0;
+
+  const sde1 = getSDE('profit1','sal1','veh1','ot1','int1','dep1','amort1');
+  const sde2 = getSDE('profit2','sal2','veh2','ot2','int2','dep2','amort2');
+  const sde3 = getSDE('profit3','sal3','veh3','ot3','int3','dep3','amort3');
+
+  const industry = document.getElementById('industry').value;
+  const years    = document.getElementById('years').value;
+  const ownerDep = document.getElementById('ownerDep').value;
+  const custConc = document.getElementById('custConc').value;
+  const recurring= document.getElementById('recurring').value;
+
+  // Weighted SDE: 50% yr1, 30% yr2, 20% yr3
+  let weightedSDE;
+  const hasY2 = !!document.getElementById('profit2').value;
+  const hasY3 = !!document.getElementById('profit3').value;
+
+  if (hasY2 && hasY3) {
+    weightedSDE = (sde1 * 0.50) + (sde2 * 0.30) + (sde3 * 0.20);
+  } else if (hasY2) {
+    weightedSDE = (sde1 * 0.625) + (sde2 * 0.375);
+  } else {
+    weightedSDE = sde1;
+  }
+
+  // Revenue trend auto-detected from actuals
+  let trendPct = null;
+  if (hasY3 && rev3 > 0) trendPct = ((rev1 - rev3) / rev3) * 100;
+  else if (hasY2 && rev2 > 0) trendPct = ((rev1 - rev2) / rev2) * 100;
+
+  let trendAdj = 0;
+  if (trendPct !== null) {
+    if (trendPct >= 20)       trendAdj =  0.4;
+    else if (trendPct >= 5)   trendAdj =  0.2;
+    else if (trendPct >= -5)  trendAdj =  0.0;
+    else if (trendPct >= -15) trendAdj = -0.3;
+    else                       trendAdj = -0.6;
+  }
+
+  const finalMultiple = Math.max(1.0, Math.min(3.0, parseFloat(document.getElementById('manualMultiple').value) || 2.0));
+
+  const midVal  = weightedSDE * finalMultiple;
+  const lowVal  = midVal * 0.85;
+  const highVal = midVal * 1.15;
+
+  document.getElementById('valRange').textContent = fmt(lowVal) + ' – ' + fmt(highVal);
+  document.getElementById('valMid').textContent   = fmt(midVal);
+  document.getElementById('resSDE').textContent   = fmt(weightedSDE);
+  document.getElementById('resMult').textContent  = finalMultiple.toFixed(2) + 'x';
+  document.getElementById('resSDE1').textContent  = fmt(sde1);
+  document.getElementById('resSDE2').textContent  = hasY2 ? fmt(sde2) : '—';
+  document.getElementById('resSDE3').textContent  = hasY3 ? fmt(sde3) : '—';
+  document.getElementById('resTrend').textContent = trendPct !== null ? (trendPct >= 0 ? '+' : '') + trendPct.toFixed(1) + '%' : '—';
+
+  const indLabel = document.getElementById('industry').options[document.getElementById('industry').selectedIndex].text;
+  const trendLabel = trendPct !== null
+    ? (trendPct >= 20 ? 'Growing 20%+' : trendPct >= 5 ? 'Growing 5–20%' : trendPct >= -5 ? 'Stable / flat' : trendPct >= -15 ? 'Declining slightly' : 'Declining significantly')
+    : 'Revenue trend (n/a)';
+
+  const factors = [
+    { label: indLabel + ' industry',               adj: parseFloat(industry) - 2.5 },
+    { label: 'Business age & track record',         adj: parseFloat(years) },
+    { label: 'Revenue trend — ' + trendLabel,       adj: trendAdj },
+    { label: 'Owner dependence / transferability',  adj: parseFloat(ownerDep) },
+    { label: 'Customer concentration / risk',       adj: parseFloat(custConc) },
+    { label: 'Recurring revenue quality',           adj: parseFloat(recurring) },
+  ];
+
+  let html = '';
+  factors.forEach(f => {
+    const isPos = f.adj > 0.05;
+    const isNeg = f.adj < -0.05;
+    html += `<div class="factor-row">
+      <div class="factor-dot ${isPos ? 'green' : isNeg ? 'red' : 'yellow'}"></div>
+      <div class="factor-text">${f.label}</div>
+      <div class="factor-badge ${isPos ? 'pos' : isNeg ? 'neg' : 'neu'}">${isPos ? 'Positive' : isNeg ? 'Negative' : 'Neutral'}</div>
+    </div>`;
+  });
+  document.getElementById('factorsList').innerHTML = html;
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
